@@ -53,6 +53,7 @@ public class AESFrame extends Application {
 
     @FXML
     private void cipher() {
+        validateKey();
         try {
             textArea2Text = aes.cipher(
                             new ByteArrayInputStream(
@@ -63,11 +64,11 @@ public class AESFrame extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(textArea2Text.length);
     }
 
     @FXML
     private void decipher() {
+        validateKey();
         try {
             textArea1.setText(new String(aes.decipher(
                             new ByteArrayInputStream(
@@ -77,6 +78,17 @@ public class AESFrame extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void clear1() {
+        textArea1.clear();
+    }
+
+    @FXML
+    private void clear2() {
+        textArea2Text = new byte[0];
+        textArea2.clear();
     }
 
     @FXML
@@ -151,6 +163,15 @@ public class AESFrame extends Application {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać odczytu z wybranego pliku", ButtonType.OK);
                 alert.show();
             }
+        }
+    }
+    private void validateKey() {
+        try {
+            KeyFactory.validateSize(keyTextField.getLength());
+        } catch(IllegalArgumentException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Podany klucz ma nieprawidłowy rozmiar", ButtonType.OK);
+            alert.show();
+            throw(e);
         }
     }
 }

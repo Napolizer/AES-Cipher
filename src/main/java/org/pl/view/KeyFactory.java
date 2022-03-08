@@ -8,7 +8,7 @@ public class KeyFactory {
         return RandomStringUtils.randomAlphanumeric(size);
     }
 
-    private static void validateSize(int size) throws IllegalArgumentException {
+    public static void validateSize(int size) throws IllegalArgumentException {
         boolean ok = switch (size) {
             case 16, 24, 32 -> true;
             default -> false;
