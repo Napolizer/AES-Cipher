@@ -70,7 +70,7 @@ public class AES {
 
     // 'Prawdziwe' szyfrowanie
     public byte[] encryptBuffer(byte[] buffer, String orgKey) {
-        if (buffer.length != 128) {
+        if (buffer.length != 16) {
             // Zapełnia zerami
             buffer = Arrays.copyOf(buffer, 16);
         }
@@ -207,9 +207,7 @@ public class AES {
 
     public InputStream cipher(InputStream input, String key) {
         //Validate key
-        if (key.getBytes().length != 16 &&
-                key.getBytes().length != 24 &&
-                key.getBytes().length != 32) {
+        if (key.getBytes().length != 16) {
             throw new RuntimeException("Nieprawidłowy rozmiar klucza: " + key.getBytes().length);
         }
 
