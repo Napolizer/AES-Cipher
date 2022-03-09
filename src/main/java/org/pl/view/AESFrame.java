@@ -63,6 +63,9 @@ public class AESFrame extends Application {
             textArea2.setText(new String(textArea2Text));
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (RuntimeException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Szyfrowanie nie powiodło się:\n" + e.getLocalizedMessage(), ButtonType.OK);
+            alert.show();
         }
     }
 
@@ -77,6 +80,9 @@ public class AESFrame extends Application {
                     .readAllBytes()));
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (RuntimeException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Deszyfrowanie nie powiodło się:\n" + e.getLocalizedMessage(), ButtonType.OK);
+            alert.show();
         }
     }
 
@@ -89,6 +95,11 @@ public class AESFrame extends Application {
     private void clear2() {
         textArea2Text = new byte[0];
         textArea2.clear();
+    }
+
+    @FXML
+    private void textArea2TextChange() {
+        textArea2Text = textArea2.getText().getBytes(StandardCharsets.UTF_8);
     }
 
     @FXML

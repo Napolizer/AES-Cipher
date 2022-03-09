@@ -27,7 +27,7 @@
                   <Button layoutX="342.0" layoutY="69.0" mnemonicParsing="false" onAction="#cipher" text="Szyfruj" />
                   <Button layoutX="336.0" layoutY="105.0" mnemonicParsing="false" onAction="#decipher" text="Deszyfruj" />
                   <TextArea fx:id="textArea1" layoutX="31.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" />
-                  <TextArea fx:id="textArea2" layoutX="422.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" />
+                  <TextArea fx:id="textArea2" layoutX="422.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" onKeyTyped="#textArea2TextChange"/>
                   <Button layoutX="83.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToEncrypt" text="Wczytaj plik z jawnym tekstem" />
                   <Button layoutX="454.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToDecrypt" text="Wczytaj plik z zaszyfrowanym tekstem" />
                   <Button layoutX="83.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveUnencryptedMessage" text="Zapisz plik z jawnym tekstem" />
