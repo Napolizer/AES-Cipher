@@ -69,6 +69,7 @@ public class AES {
     };
 
     // 'Prawdziwe' szyfrowanie
+    // Doklejanie zer po uzupełnieniu
     public byte[] encryptBuffer(byte[] buffer, String orgKey) {
         if (buffer.length != 16) {
             // Zapełnia zerami
@@ -214,11 +215,15 @@ public class AES {
         try {
             var stream = new ByteArrayOutputStream();
             byte[] bufferChunk = input.readNBytes(16);
+            byte lastChunkTailingZeroes = 0;
+
             while(bufferChunk.length != 0) {
+                lastChunkTailingZeroes = calculateTailingZeroes(bufferChunk);
                 bufferChunk = encryptBuffer(bufferChunk, key);
                 stream.write(bufferChunk);
                 bufferChunk = input.readNBytes(16);
             }
+            stream.write(lastChunkTailingZeroes);
             return new ByteArrayInputStream(stream.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -240,24 +245,37 @@ public class AES {
                 bufferChunk = decryptBuffer(bufferChunk, key);
                 byte[] lastChunk = bufferChunk;
                 bufferChunk = input.readNBytes(16);
-                if (bufferChunk.length != 0) {
+                if (bufferChunk.length == 16) {
                     stream.write(lastChunk);
-                } else {
-                    int lastNonZeroPos = lastChunk.length - 1;
-                    while (lastChunk[lastNonZeroPos] == (byte)0 && lastNonZeroPos != 0) {
-                        lastNonZeroPos--;
-                    }
-                    bufferChunk = new byte[lastNonZeroPos+1];
-                    for (int i = 0; i <= lastNonZeroPos; ++i) {
-                        bufferChunk[i] = lastChunk[i];
-                    }
-                    stream.write(bufferChunk);
+                } else if (bufferChunk.length == 1) {
+                    byte tailingZeroes = bufferChunk[0];
+                    byte tailingZeroesInBuffer = calculateTailingZeroes(lastChunk);
+                    lastChunk = Arrays.copyOf(lastChunk, 16 - (tailingZeroesInBuffer - tailingZeroes));
+                    stream.write(lastChunk);
                     break;
+                } else {
+                    // TODO
                 }
             }
             return new ByteArrayInputStream(stream.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public byte calculateTailingZeroes(byte[] buffer) {
+        if (buffer[buffer.length-1] != 0) {
+            return 0;
+        }
+        byte count = 1;
+
+        for (int i = buffer.length-2; i >= 0; --i) {
+            if (buffer[i] == 0) {
+                count++;
+            } else {
+                break;
+            }
+        }
+        return count;
     }
 }

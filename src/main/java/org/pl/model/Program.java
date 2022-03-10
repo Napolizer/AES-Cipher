@@ -12,7 +12,7 @@ public class Program {
 
         InputStream stream = aes.cipher(
                 new ByteArrayInputStream(
-                        "Źdźbło trawy!!".getBytes(StandardCharsets.UTF_8) // Kodowanie kurwa!!!
+                        "Źdźbło trawy!!".getBytes(StandardCharsets.UTF_8)
                 ), key);
 
         byte[] encryption = stream.readAllBytes();

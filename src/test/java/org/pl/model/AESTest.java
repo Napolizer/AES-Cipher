@@ -124,13 +124,61 @@ class AESTest {
         String key = "Thats my Kung Fu";
         byte[] cipherText = new byte[]{
                 0x29, (byte)0xc3, 0x50, 0x5f, 0x57, 0x14, 0x20, (byte)0xf6,
-                0x40, 0x22, (byte)0x99, (byte)0xb3, 0x1a, 0x02, (byte)0xd7, 0x3a
+                0x40, 0x22, (byte)0x99, (byte)0xb3, 0x1a, 0x02, (byte)0xd7, 0x3a, 0
         };
 
         InputStream output = aes.cipher(new ByteArrayInputStream(text), key);
 
         assertDoesNotThrow(() -> {
             assertThat(output.readAllBytes(), equalTo(cipherText));
+        });
+    }
+
+    @Test
+    void cipherTailingZeroesTest() {
+        byte[] text = new byte[]{1, 2, 3, 4, 5, '\u0000', '\u0000', '\u0000'};
+        String key = "Thats my Kung Fu";
+        byte[] cipherText = new byte[]{
+                -125, -117, -7, 126, 126, -32, 67, 125,
+                -3, 103, 79, 80, 48, 36, 70, 40, 3
+        };
+
+        InputStream output = aes.cipher(new ByteArrayInputStream(text), key);
+
+        assertDoesNotThrow(() -> {
+            assertThat(output.readAllBytes(), equalTo(cipherText));
+        });
+    }
+
+    @Test
+    void decipherText() {
+        byte[] text = "Two One Nine Two".getBytes(StandardCharsets.UTF_8);
+        String key = "Thats my Kung Fu";
+        byte[] cipherText = new byte[]{
+                0x29, (byte)0xc3, 0x50, 0x5f, 0x57, 0x14, 0x20, (byte)0xf6,
+                0x40, 0x22, (byte)0x99, (byte)0xb3, 0x1a, 0x02, (byte)0xd7, 0x3a, 0
+        };
+
+        InputStream output = aes.decipher(new ByteArrayInputStream(cipherText), key);
+
+        assertDoesNotThrow(() -> {
+            assertThat(output.readAllBytes(), equalTo(text));
+        });
+    }
+
+    @Test
+    void decipherTextTailingZeroesTest() {
+        byte[] text = new byte[]{1, 2, 3, 4, 5, '\u0000', '\u0000', '\u0000'};
+        String key = "Thats my Kung Fu";
+        byte[] cipherText = new byte[]{
+                -125, -117, -7, 126, 126, -32, 67, 125,
+                -3, 103, 79, 80, 48, 36, 70, 40, 3
+        };
+
+        InputStream output = aes.decipher(new ByteArrayInputStream(cipherText), key);
+
+        assertDoesNotThrow(() -> {
+            assertThat(output.readAllBytes(), equalTo(text));
         });
     }
 
@@ -160,5 +208,21 @@ class AESTest {
         byte[] output = aes.decryptBuffer(cipherText, key);
 
         assertThat(output, equalTo(originalText));
+    }
+
+    @Test
+    void calculateTailingZeroesTest() {
+        byte[] buffer = new byte[]{1, 0, 1, 0, 0};
+        assertThat(aes.calculateTailingZeroes(buffer), equalTo((byte)2));
+        buffer = new byte[]{1, 0, 0, 0, 0};
+        assertThat(aes.calculateTailingZeroes(buffer), equalTo((byte)4));
+        buffer = new byte[]{0, 0, 0, 0};
+        assertThat(aes.calculateTailingZeroes(buffer), equalTo((byte)4));
+        buffer = new byte[]{0, 0, 0, 1};
+        assertThat(aes.calculateTailingZeroes(buffer), equalTo((byte)0));
+        buffer = new byte[]{0, 0, 1, 0, 0, 0};
+        assertThat(aes.calculateTailingZeroes(buffer), equalTo((byte)3));
+        buffer = new byte[]{2, 3, 4, 5, 6, 7, 8, 0, 0};
+        assertThat(aes.calculateTailingZeroes(buffer), equalTo((byte)2));
     }
 }
