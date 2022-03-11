@@ -183,6 +183,45 @@ class AESTest {
     }
 
     @Test
+    void cipherDecipher16ByteKeyTest() {
+        byte[] text = "Two One Nine Two".getBytes(StandardCharsets.UTF_8);
+        String key = "2".repeat(16);
+
+        InputStream cipherText = aes.cipher(new ByteArrayInputStream(text), key);
+        InputStream output = aes.decipher(cipherText, key);
+
+        assertDoesNotThrow(() -> {
+            assertThat(output.readAllBytes(), equalTo(text));
+        });
+    }
+
+    @Test
+    void cipherDecipher24ByteKeyTest() {
+        byte[] text = "Two One Nine Two".getBytes(StandardCharsets.UTF_8);
+        String key = "2".repeat(24);
+
+        InputStream cipherText = aes.cipher(new ByteArrayInputStream(text), key);
+        InputStream output = aes.decipher(cipherText, key);
+
+        assertDoesNotThrow(() -> {
+            assertThat(output.readAllBytes(), equalTo(text));
+        });
+    }
+
+    @Test
+    void cipherDecipher32ByteKeyTest() {
+        byte[] text = "Two One Nine Two".getBytes(StandardCharsets.UTF_8);
+        String key = "2".repeat(32);
+
+        InputStream cipherText = aes.cipher(new ByteArrayInputStream(text), key);
+        InputStream output = aes.decipher(cipherText, key);
+
+        assertDoesNotThrow(() -> {
+            assertThat(output.readAllBytes(), equalTo(text));
+        });
+    }
+
+    @Test
     void transformBufferTest() {
         byte[] originalText = "Two One Nine Two".getBytes(StandardCharsets.UTF_8);
         String key = "Thats my Kung Fu";

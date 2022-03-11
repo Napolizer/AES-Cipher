@@ -76,17 +76,18 @@ public class AES {
             buffer = Arrays.copyOf(buffer, 16);
         }
 
-        // TODO Klucz tylko 16 bajtowy!!!
-        int[] keys = expandKey(orgKey); // Zawiera 11 ROZSZERZONYCH kluczy, każdy to kolejne 4 inty
+        int[] keys = expandKey(orgKey);
 
         State stateMatrix = new State(buffer);
+
+        int roundNumber = getRoundNumber(orgKey);
 
         // Round 0
         State keyState = new KeyState(new int[]{keys[0], keys[1], keys[2], keys[3]});
 
         stateMatrix.xor(keyState);
 
-        for (int i = 1; i < 10; ++i) {
+        for (int i = 1; i < roundNumber-1; ++i) {
             keyState = new KeyState(new int[]{keys[i * 4], keys[i * 4 + 1], keys[i * 4 + 2], keys[i * 4 + 3]});
             stateMatrix.substitute(sbox);
             stateMatrix.shiftRows();
@@ -111,19 +112,20 @@ public class AES {
     }
 
     public byte[] decryptBuffer(byte[] buffer, String orgKey) {
-        // TODO Klucz tylko 16 bajtowy!!!
-        int[] keys = expandKey(orgKey); // Zawiera 11 ROZSZERZONYCH kluczy, każdy to kolejne 4 inty
+        int[] keys = expandKey(orgKey);
 
         State stateMatrix = new State(buffer);
 
         KeyState keyState = new KeyState(new int[]{keys[10 * 4], keys[10 * 4 + 1], keys[10 * 4 + 2], keys[10 * 4 + 3]});
+
+        int roundNumber = getRoundNumber(orgKey);
 
         // Final round
         stateMatrix.xor(keyState);
         stateMatrix.inverseShiftRows();
         stateMatrix.substitute(inverseSbox);
 
-        for (int i = 9; i >= 1; --i) {
+        for (int i = roundNumber-2; i >= 1; --i) {
             keyState = new KeyState(new int[]{keys[i * 4], keys[i * 4 + 1], keys[i * 4 + 2], keys[i * 4 + 3]});
             stateMatrix.xor(keyState);
             stateMatrix.inverseMixColumns();
@@ -169,25 +171,34 @@ public class AES {
         return word ^ (rcon[round] << 24);
     }
 
-
+    private int getRoundNumber(String key) {
+        return switch(key.getBytes().length) {
+            case 16 -> 11;
+            case 24 -> 13;
+            case 32 -> 15;
+            default -> throw new RuntimeException("Rozmiar klucza " + key.getBytes().length + " nie jest wspierany");
+        };
+    }
 
     public int[] expandKey(String orgKey) {
-        // Przyjmujemy że klucz jest 16 bajtowy TODO
         byte[] byteKey = orgKey.getBytes();
+        int keySize = byteKey.length;
+        int keySizeWords = keySize / 4;
 
-        int[] keys = new int[44]; // W sumie klucze dla 11 rund
-        keys[0] = (byteKey[0]<<24) | (byteKey[1]<<16) | (byteKey[2]<<8) | byteKey[3];
-        keys[1] = (byteKey[4]<<24) | (byteKey[5]<<16) | (byteKey[6]<<8) | byteKey[7];
-        keys[2] = (byteKey[8]<<24) | (byteKey[9]<<16) | (byteKey[10]<<8) | byteKey[11];
-        keys[3] = (byteKey[12]<<24) | (byteKey[13]<<16) | (byteKey[14]<<8) | byteKey[15];
+        int roundKeys = getRoundNumber(orgKey);
 
-        for (int i = 4; i < 44; ++i) {
-            int reminder = keys[i-1];
-            if (i % 4 == 0) {
-                reminder = subWord(rotWord(reminder));
-                reminder = rcon(reminder, i/4);
+        int[] keys = new int[roundKeys * 4];
+
+        for (int i = 0; i <= roundKeys * 4 - 1; ++i) {
+            if (i < keySizeWords) {
+                keys[i] = (byteKey[i*4]<<24) | (byteKey[i*4+1]<<16) | (byteKey[i*4+2]<<8) | byteKey[i*4+3];
+            } else if (i % keySizeWords == 0) {
+                keys[i] = keys[i - keySizeWords] ^ rcon(subWord(rotWord(keys[i-1])), i/4);
+            } else if (keySizeWords > 6 && i % keySizeWords == 4) {
+                keys[i] = keys[i - keySizeWords] ^ subWord(keys[i-1]);
+            } else {
+                keys[i] = keys[i - keySizeWords] ^ keys[i-1];
             }
-            keys[i] = keys[i-4] ^ reminder;
         }
 
         return keys;
@@ -208,7 +219,9 @@ public class AES {
 
     public InputStream cipher(InputStream input, String key) {
         //Validate key
-        if (key.getBytes().length != 16) {
+        if (key.getBytes().length != 16 &&
+        key.getBytes().length != 24 &&
+        key.getBytes().length != 32) {
             throw new RuntimeException("Nieprawidłowy rozmiar klucza: " + key.getBytes().length);
         }
 
