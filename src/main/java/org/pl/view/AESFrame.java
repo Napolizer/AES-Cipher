@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.pl.model.AES;
+import org.pl.model.FileManager;
 
 
 import java.io.*;
@@ -27,7 +28,7 @@ public class AESFrame extends Application {
     private TextArea textArea1;
     @FXML
     public TextArea textArea2;
-    public byte[] textArea2Text;
+    private byte[] textArea2Text;
 
     public AESFrame() {
         aes = new AES();
@@ -88,6 +89,36 @@ public class AESFrame extends Application {
     }
 
     @FXML
+    private void cipherFile() {
+        try {
+            FileManager.encryptFile(
+                    selectFileToRead(),
+                    selectFileToWrite(),
+                    keyTextField.getText()
+            );
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił błąd podczas szyfrowania pliku: " + e.getLocalizedMessage(), ButtonType.OK);
+            alert.show();
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Szyfrowanie zakończone pomyślnie", ButtonType.OK);
+    }
+
+    @FXML
+    private void decipherFile() {
+        try {
+            FileManager.decryptFile(
+                    selectFileToRead(),
+                    selectFileToWrite(),
+                    keyTextField.getText()
+            );
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił błąd podczas deszyfrowania pliku: " + e.getLocalizedMessage(), ButtonType.OK);
+            alert.show();
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Deszyfrowanie zakończone pomyślnie", ButtonType.OK);
+    }
+
+    @FXML
     private void clear1() {
         textArea1.clear();
     }
@@ -115,8 +146,7 @@ public class AESFrame extends Application {
 
     @FXML
     private void loadTextToDecrypt() {
-        File file = readFileTo(textArea2);
-        textArea2Text = readFileToBuffer(file);
+        textArea2Text = readFileTo(textArea2);
     }
 
     @FXML
@@ -126,81 +156,16 @@ public class AESFrame extends Application {
 
     @FXML
     private void saveEncryptedMessage() {
-        writeFileFromBuffer(textArea2Text);
+        writeFileFrom(textArea2Text);
     }
 
     private void writeFileFrom(TextInputControl from) {
-        FileChooser fileChooser = new FileChooser();
-        File file = fileChooser.showSaveDialog(null);
-
-        if (file != null) {
-            if (file.canWrite()) {
-                try (PrintWriter printWriter = new PrintWriter(file)) {
-                    printWriter.print(from.getText());
-                } catch (FileNotFoundException exception) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wybrany plik nie istnieje", ButtonType.OK);
-                    alert.show();
-                }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać zapisu do wybranego pliku", ButtonType.OK);
-                alert.show();
-            }
-        }
+        writeFileFrom(from.getText().getBytes());
     }
 
-    private File readFileTo(TextInputControl where) {
-        FileChooser fileChooser = new FileChooser();
-        File file = fileChooser.showOpenDialog(null);
+    private void writeFileFrom(byte[] buffer) {
+        File file = selectFileToWrite();
 
-        if (file != null) {
-            if (file.canRead()) {
-                try (FileInputStream inputStream = new FileInputStream(file)) {
-                    where.setText(new String(inputStream.readAllBytes()));
-                } catch (IOException exception) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił problem podczas wczytywania pliku", ButtonType.OK);
-                    alert.show();
-                }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać odczytu z wybranego pliku", ButtonType.OK);
-                alert.show();
-            }
-        }
-        return file;
-    }
-
-    private byte[] readFileToBuffer() {
-        FileChooser fileChooser = new FileChooser();
-        File file = fileChooser.showOpenDialog(null);
-
-        return readFileToBuffer(file);
-    }
-
-    private byte[] readFileToBuffer(File file) {
-        if (file != null) {
-            if (file.canRead()) {
-                try {
-                    return Files.readAllBytes(file.toPath());
-                } catch (IOException exception) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił problem z odczytem pliku", ButtonType.OK);
-                    alert.show();
-                }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać odczytu z wybranego pliku", ButtonType.OK);
-                alert.show();
-            }
-        }
-        return null;
-    }
-
-    private File writeFileFromBuffer(byte[] buffer) {
-        FileChooser fileChooser = new FileChooser();
-        File file = fileChooser.showSaveDialog(null);
-
-        writeFileFromBuffer(buffer, file);
-        return file;
-    }
-
-    private void writeFileFromBuffer(byte[] buffer, File file) {
         if (file != null) {
             if (file.canWrite()) {
                 try (var fileOutputStream = new FileOutputStream(file)) {
@@ -214,6 +179,39 @@ public class AESFrame extends Application {
                 alert.show();
             }
         }
+    }
+
+    private File selectFileToRead() {
+        FileChooser fileChooser = new FileChooser();
+        return fileChooser.showOpenDialog(null);
+    }
+
+    private File selectFileToWrite() {
+        FileChooser fileChooser = new FileChooser();
+        return fileChooser.showSaveDialog(null);
+    }
+
+    private byte[] readFileTo(TextInputControl where) {
+        File file = selectFileToRead();
+
+        if (file != null) {
+            if (file.canRead()) {
+                try (FileInputStream inputStream = new FileInputStream(file)) {
+                    byte[] buffer = inputStream.readAllBytes();
+                    if (where != null) {
+                        where.setText(new String(buffer));
+                    }
+                    return buffer;
+                } catch (IOException exception) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił problem podczas wczytywania pliku", ButtonType.OK);
+                    alert.show();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać odczytu z wybranego pliku", ButtonType.OK);
+                alert.show();
+            }
+        }
+        return null;
     }
 
     private void validateKey() {

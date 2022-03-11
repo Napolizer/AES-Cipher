@@ -20,6 +20,8 @@
                   <Button layoutX="14.0" layoutY="110.0" mnemonicParsing="false" onAction="#saveKeyToFile" text="Zapisz klucz do pliku" />
                   <Button layoutX="142.0" layoutY="174.0" mnemonicParsing="false" onAction="#clear1" text="Wyczyść" />
                   <Button layoutX="538.0" layoutY="174.0" mnemonicParsing="false" onAction="#clear2" text="Wyczyść" />
+                  <Button layoutX="509.0" layoutY="22.0" mnemonicParsing="false" prefHeight="61.0" prefWidth="128.0" text="Szyfruj plik" onAction="#cipherFile"/>
+                  <Button layoutX="509.0" layoutY="93.0" mnemonicParsing="false" prefHeight="61.0" prefWidth="128.0" text="Deszyfruj plik" onAction="#decipherFile"/>
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
@@ -27,7 +29,7 @@
                   <Button layoutX="342.0" layoutY="69.0" mnemonicParsing="false" onAction="#cipher" text="Szyfruj" />
                   <Button layoutX="336.0" layoutY="105.0" mnemonicParsing="false" onAction="#decipher" text="Deszyfruj" />
                   <TextArea fx:id="textArea1" layoutX="31.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" />
-                  <TextArea fx:id="textArea2" layoutX="422.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" editable="false"/>
+                  <TextArea fx:id="textArea2" editable="false" layoutX="422.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" />
                   <Button layoutX="83.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToEncrypt" text="Wczytaj plik z jawnym tekstem" />
                   <Button layoutX="454.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToDecrypt" text="Wczytaj plik z zaszyfrowanym tekstem" />
                   <Button layoutX="83.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveUnencryptedMessage" text="Zapisz plik z jawnym tekstem" />

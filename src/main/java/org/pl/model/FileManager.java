@@ -11,39 +11,41 @@ import java.io.*;
 @EqualsAndHashCode
 @ToString
 public class FileManager {
-    public void encryptFile(File file, File destination, String key) throws IOException {
-        if (!destination.exists()) {
-            if (!destination.createNewFile()) {
-                throw new IOException("Nie udało się utworzyć pliku " + destination.getName());
-            }
+    private static final AES aes = new AES();
+
+    public static void encryptFile(File file, File destination, String key) throws IOException {
+        createIfNotExists(destination);
+        var fileStream = new ByteArrayInputStream(readFromFile(file));
+
+        InputStream encryptedData = aes.cipher(fileStream, key);
+        writeToFile(destination, encryptedData);
+    }
+
+    public static void writeToFile(File destination, InputStream stream) throws IOException {
+        try (FileOutputStream outputStream = new FileOutputStream(destination.getAbsolutePath())) {
+            createIfNotExists(destination);
+            outputStream.write(stream.readAllBytes());
         }
+    }
 
-        // Encoding
-
+    public static byte[] readFromFile(File file) throws IOException {
         try (FileInputStream inputStream = new FileInputStream(file.getAbsolutePath())) {
-            AES aes = new AES();
-            InputStream encryptedData = aes.cipher(inputStream, key);
-            try (FileOutputStream outputStream = new FileOutputStream(destination.getAbsolutePath())) {
-                outputStream.write(encryptedData.readAllBytes());
+            return inputStream.readAllBytes();
+        }
+    }
+
+    public static void createIfNotExists(File file) throws IOException {
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
+                throw new IOException("Nie udało się utworzyć pliku " + file.getName());
             }
         }
     }
 
-    public void decryptFile(File file, File destination, String key) throws IOException {
-        if (!destination.exists()) {
-            if (!destination.createNewFile()) {
-                throw new IOException("Nie udało się utworzyć pliku " + destination.getName());
-            }
-        }
+    public static void decryptFile(File file, File destination, String key) throws IOException {
+        var inputStream = new ByteArrayInputStream(readFromFile(file));
+        InputStream encryptedData = aes.decipher(inputStream, key);
 
-        // Encoding
-
-        try (FileInputStream inputStream = new FileInputStream(file.getAbsolutePath())) {
-            AES aes = new AES();
-            InputStream encryptedData = aes.decipher(inputStream, key);
-            try (FileOutputStream outputStream = new FileOutputStream(destination.getAbsolutePath())) {
-                outputStream.write(encryptedData.readAllBytes());
-            }
-        }
+        writeToFile(destination, encryptedData);
     }
 }
