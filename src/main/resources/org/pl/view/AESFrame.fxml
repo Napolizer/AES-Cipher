@@ -1,42 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="497.0" prefWidth="727.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pl.view.AESFrame">
-   <children>
-      <SplitPane dividerPositions="0.41169354838709676" orientation="VERTICAL" prefHeight="497.0" prefWidth="727.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-               <children>
-                  <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Podaj klucz" wrappingWidth="86.39997558593768" />
-                  <TextField fx:id="keyTextField" layoutX="14.0" layoutY="39.0" />
-                  <Button layoutX="185.0" layoutY="39.0" mnemonicParsing="false" onAction="#generateKey" text="Generuj" />
-                  <Button layoutX="14.0" layoutY="75.0" mnemonicParsing="false" onAction="#openKeyFile" text="Wczytaj klucz z pliku" />
-                  <Button layoutX="14.0" layoutY="110.0" mnemonicParsing="false" onAction="#saveKeyToFile" text="Zapisz klucz do pliku" />
-                  <Button layoutX="142.0" layoutY="174.0" mnemonicParsing="false" onAction="#clear1" text="Wyczyść" />
-                  <Button layoutX="538.0" layoutY="174.0" mnemonicParsing="false" onAction="#clear2" text="Wyczyść" />
-                  <Button layoutX="509.0" layoutY="22.0" mnemonicParsing="false" prefHeight="61.0" prefWidth="128.0" text="Szyfruj plik" onAction="#cipherFile"/>
-                  <Button layoutX="509.0" layoutY="93.0" mnemonicParsing="false" prefHeight="61.0" prefWidth="128.0" text="Deszyfruj plik" onAction="#decipherFile"/>
-               </children>
-            </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-               <children>
-                  <Button layoutX="342.0" layoutY="69.0" mnemonicParsing="false" onAction="#cipher" text="Szyfruj" />
-                  <Button layoutX="336.0" layoutY="105.0" mnemonicParsing="false" onAction="#decipher" text="Deszyfruj" />
-                  <TextArea fx:id="textArea1" layoutX="31.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" />
-                  <TextArea fx:id="textArea2" editable="false" layoutX="422.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0" />
-                  <Button layoutX="83.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToEncrypt" text="Wczytaj plik z jawnym tekstem" />
-                  <Button layoutX="454.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToDecrypt" text="Wczytaj plik z zaszyfrowanym tekstem" />
-                  <Button layoutX="83.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveUnencryptedMessage" text="Zapisz plik z jawnym tekstem" />
-                  <Button layoutX="458.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveEncryptedMessage" text="Zapisz plik z zaszyfrowanym tekstem" />
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
-   </children>
+<?import javafx.scene.control.ToggleGroup?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="497.0"
+            prefWidth="727.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.pl.view.AESFrame">
+    <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="497.0" prefWidth="727.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+            <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Podaj klucz"
+                  wrappingWidth="86.39997558593768"/>
+            <TextField fx:id="keyTextField" layoutX="14.0" layoutY="39.0"/>
+            <Button layoutX="185.0" layoutY="39.0" mnemonicParsing="false" onAction="#generateKey"
+                    text="Generuj"/>
+            <Button layoutX="14.0" layoutY="75.0" mnemonicParsing="false" onAction="#openKeyFile"
+                    text="Wczytaj klucz z pliku"/>
+            <Button layoutX="14.0" layoutY="110.0" mnemonicParsing="false" onAction="#saveKeyToFile"
+                    text="Zapisz klucz do pliku"/>
+            <Button layoutX="142.0" layoutY="174.0" mnemonicParsing="false" onAction="#clear1" text="Wyczyść"/>
+            <Button layoutX="538.0" layoutY="174.0" mnemonicParsing="false" onAction="#clear2" text="Wyczyść"/>
+            <Button layoutX="509.0" layoutY="22.0" mnemonicParsing="false" onAction="#cipherFile"
+                    prefHeight="61.0" prefWidth="128.0" text="Szyfruj plik"/>
+            <Button layoutX="509.0" layoutY="93.0" mnemonicParsing="false" onAction="#decipherFile"
+                    prefHeight="61.0" prefWidth="128.0" text="Deszyfruj plik"/>
+
+            <fx:define>
+                <ToggleGroup fx:id="rbGroup"/>
+            </fx:define>
+
+            <Group layoutX="192.0" layoutY="79.0">
+                <RadioButton fx:id="rb16" mnemonicParsing="false" text="16 bajtów" selected="true"
+                             toggleGroup="$rbGroup"/>
+                <RadioButton fx:id="rb24" layoutY="22.0" mnemonicParsing="false" text="24 bajty"
+                             toggleGroup="$rbGroup"/>
+                <RadioButton fx:id="rb32" layoutY="48.0" mnemonicParsing="false" text="32 bajty"
+                             toggleGroup="$rbGroup"/>
+            </Group>
+        </AnchorPane>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+            <Button layoutX="342.0" layoutY="69.0" mnemonicParsing="false" onAction="#cipher" text="Szyfruj"/>
+            <Button layoutX="336.0" layoutY="105.0" mnemonicParsing="false" onAction="#decipher"
+                    text="Deszyfruj"/>
+            <TextArea fx:id="textArea1" layoutX="31.0" layoutY="49.0" prefHeight="163.0" prefWidth="281.0"/>
+            <TextArea fx:id="textArea2" editable="false" layoutX="422.0" layoutY="49.0" prefHeight="163.0"
+                      prefWidth="281.0"/>
+            <Button layoutX="83.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToEncrypt"
+                    text="Wczytaj plik z jawnym tekstem"/>
+            <Button layoutX="454.0" layoutY="14.0" mnemonicParsing="false" onAction="#loadTextToDecrypt"
+                    text="Wczytaj plik z zaszyfrowanym tekstem"/>
+            <Button layoutX="83.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveUnencryptedMessage"
+                    text="Zapisz plik z jawnym tekstem"/>
+            <Button layoutX="458.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveEncryptedMessage"
+                    text="Zapisz plik z zaszyfrowanym tekstem"/>
+        </AnchorPane>
+    </SplitPane>
 </AnchorPane>

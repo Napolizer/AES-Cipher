@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class AESFrame extends Application {
 
-    private AES aes;
+    private final AES aes;
 
     @FXML
     private TextField keyTextField;
@@ -29,6 +29,13 @@ public class AESFrame extends Application {
     @FXML
     public TextArea textArea2;
     private byte[] textArea2Text;
+
+    @FXML
+    private RadioButton rb16;
+    @FXML
+    private RadioButton rb24;
+    @FXML
+    private RadioButton rb32;
 
     public AESFrame() {
         aes = new AES();
@@ -50,7 +57,15 @@ public class AESFrame extends Application {
 
     @FXML
     private void generateKey() {
-        keyTextField.setText(KeyFactory.generateKey(16));
+        int size = 0;
+        if (rb16.isSelected()) {
+            size = 16;
+        } else if (rb24.isSelected()){
+            size = 24;
+        } else if (rb32.isSelected()) {
+            size = 32;
+        }
+        keyTextField.setText(KeyFactory.generateKey(size));
     }
 
     @FXML
