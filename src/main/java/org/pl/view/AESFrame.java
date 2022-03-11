@@ -101,6 +101,7 @@ public class AESFrame extends Application {
             alert.show();
         }
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Szyfrowanie zakończone pomyślnie", ButtonType.OK);
+        alert.show();
     }
 
     @FXML
@@ -116,6 +117,7 @@ public class AESFrame extends Application {
             alert.show();
         }
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Deszyfrowanie zakończone pomyślnie", ButtonType.OK);
+        alert.show();
     }
 
     @FXML
