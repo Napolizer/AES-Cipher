@@ -13,6 +13,7 @@ import org.pl.model.AES;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -98,11 +99,6 @@ public class AESFrame extends Application {
     }
 
     @FXML
-    private void textArea2TextChange() {
-        textArea2Text = textArea2.getText().getBytes(StandardCharsets.UTF_8);
-    }
-
-    @FXML
     private void openKeyFile() {
         readFileTo(keyTextField);
     }
@@ -119,7 +115,8 @@ public class AESFrame extends Application {
 
     @FXML
     private void loadTextToDecrypt() {
-        readFileTo(textArea2);
+        File file = readFileTo(textArea2);
+        textArea2Text = readFileToBuffer(file);
     }
 
     @FXML
@@ -129,7 +126,7 @@ public class AESFrame extends Application {
 
     @FXML
     private void saveEncryptedMessage() {
-        writeFileFrom(textArea2);
+        writeFileFromBuffer(textArea2Text);
     }
 
     private void writeFileFrom(TextInputControl from) {
@@ -151,23 +148,16 @@ public class AESFrame extends Application {
         }
     }
 
-    private void readFileTo(TextInputControl where) {
+    private File readFileTo(TextInputControl where) {
         FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
             if (file.canRead()) {
-                try (Scanner scanner = new Scanner(file)) {
-                    if (scanner.hasNext()) {
-                        where.setText(scanner.nextLine());
-                    }
-
-                    while (scanner.hasNext()) {
-                        where.appendText("\n");
-                        where.appendText(scanner.nextLine());
-                    }
-                } catch (FileNotFoundException exception) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wybrany plik nie istnieje", ButtonType.OK);
+                try (FileInputStream inputStream = new FileInputStream(file)) {
+                    where.setText(new String(inputStream.readAllBytes()));
+                } catch (IOException exception) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił problem podczas wczytywania pliku", ButtonType.OK);
                     alert.show();
                 }
             } else {
@@ -175,7 +165,57 @@ public class AESFrame extends Application {
                 alert.show();
             }
         }
+        return file;
     }
+
+    private byte[] readFileToBuffer() {
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showOpenDialog(null);
+
+        return readFileToBuffer(file);
+    }
+
+    private byte[] readFileToBuffer(File file) {
+        if (file != null) {
+            if (file.canRead()) {
+                try {
+                    return Files.readAllBytes(file.toPath());
+                } catch (IOException exception) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił problem z odczytem pliku", ButtonType.OK);
+                    alert.show();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać odczytu z wybranego pliku", ButtonType.OK);
+                alert.show();
+            }
+        }
+        return null;
+    }
+
+    private File writeFileFromBuffer(byte[] buffer) {
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showSaveDialog(null);
+
+        writeFileFromBuffer(buffer, file);
+        return file;
+    }
+
+    private void writeFileFromBuffer(byte[] buffer, File file) {
+        if (file != null) {
+            if (file.canWrite()) {
+                try (var fileOutputStream = new FileOutputStream(file)) {
+                    fileOutputStream.write(buffer);
+                } catch (IOException exception) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Wystąpił problem z zapisem pliku", ButtonType.OK);
+                    alert.show();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Nie można dokonać zapisu do wybranego pliku", ButtonType.OK);
+                alert.show();
+            }
+        }
+    }
+
     private void validateKey() {
         try {
             KeyFactory.validateSize(keyTextField.getLength());
