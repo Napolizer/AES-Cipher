@@ -94,8 +94,7 @@ public class AES {
             stateMatrix.mixColumns();
             stateMatrix.xor(keyState);
         }
-
-        keyState = new KeyState(new int[]{keys[10 * 4], keys[10 * 4 + 1], keys[10 * 4 + 2], keys[10 * 4 + 3]});
+        keyState = new KeyState(new int[]{keys[(roundNumber-1) * 4], keys[(roundNumber-1) * 4 + 1], keys[(roundNumber-1) * 4 + 2], keys[(roundNumber-1) * 4 + 3]});
 
         // Last round without mixColumns
         stateMatrix.substitute(sbox);
@@ -114,11 +113,9 @@ public class AES {
     public byte[] decryptBuffer(byte[] buffer, String orgKey) {
         int[] keys = expandKey(orgKey);
 
-        State stateMatrix = new State(buffer);
-
-        KeyState keyState = new KeyState(new int[]{keys[10 * 4], keys[10 * 4 + 1], keys[10 * 4 + 2], keys[10 * 4 + 3]});
-
         int roundNumber = getRoundNumber(orgKey);
+        State stateMatrix = new State(buffer);
+        KeyState keyState = new KeyState(new int[]{keys[(roundNumber-1) * 4], keys[(roundNumber-1) * 4 + 1], keys[(roundNumber-1) * 4 + 2], keys[(roundNumber-1) * 4 + 3]});
 
         // Final round
         stateMatrix.xor(keyState);
