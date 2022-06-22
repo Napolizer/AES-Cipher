@@ -48,22 +48,6 @@ class FileManagerTest {
     }
 
     @Test
-    void cipherDecipherPdfFileTest() {
-        String key = "a".repeat(16);
-        assertDoesNotThrow(() -> {
-            File testFile = new File("src/test/resources/E01_instrukcja.pdf");
-
-            fileManager.encryptFile(testFile, destinationFile, key);
-            fileManager.decryptFile(destinationFile, destinationFile, key);
-
-            byte[] file1 = Files.readAllBytes(testFile.toPath());
-            byte[] file2 = Files.readAllBytes(destinationFile.toPath());
-
-            assertThat(file1, equalTo(file2));
-        });
-    }
-
-    @Test
     void cipherDecipherJpgFile() {
         String key = "a".repeat(16);
         assertDoesNotThrow(() -> {
@@ -100,22 +84,6 @@ class FileManagerTest {
         String key = "a".repeat(16);
         assertDoesNotThrow(() -> {
             File testFile = new File("src/test/resources/obraz.xcf");
-
-            fileManager.encryptFile(testFile, destinationFile, key);
-            fileManager.decryptFile(destinationFile, destinationFile, key);
-
-            byte[] file1 = Files.readAllBytes(testFile.toPath());
-            byte[] file2 = Files.readAllBytes(destinationFile.toPath());
-
-            assertThat(file1, equalTo(file2));
-        });
-    }
-
-    @Test
-    void cipherDecipherExeFile() {
-        String key = "a".repeat(16);
-        assertDoesNotThrow(() -> {
-            File testFile = new File("src/test/resources/VisualStudioSetup.exe");
 
             fileManager.encryptFile(testFile, destinationFile, key);
             fileManager.decryptFile(destinationFile, destinationFile, key);
